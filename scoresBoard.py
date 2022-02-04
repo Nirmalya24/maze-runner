@@ -15,6 +15,8 @@ def updateRecord(player, file = "scores.json") :    # Do we want to hard code th
         record = json.load(scores)
         insertSortedScore(record, player)
         scores.seek(0)
+        print("test")
+        print(record, scores)
         json.dump(record, scores)
         scores.close
 
@@ -32,7 +34,7 @@ def insertSortedScore(record, player) :
     
 
 # Run newScore("name", score) in server.py to add new record
-newScore("mazeRunner", 8)
+newScore("someone else", 3)
 
 #/////////////////////////////////////////////////////////////////////////////#
 
