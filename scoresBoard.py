@@ -2,25 +2,25 @@
 
 import json
 
-def newScore(name, time) :
+def new_score(name, time) :
     player = {
         "name" : name,
         "time" : time
     }
 
-    updateRecord(player)
+    updat_record(player)
 
-def updateRecord(player, file = "scores.json") :    # Do we want to hard code the file name?
+def updat_record(player, file = "scores.json") :    # Do we want to hard code the file name?
     with open(file, "r+") as scores :
         record = json.load(scores)
-        insertSortedScore(record, player)
+        insert_sorted_score(record, player)
         scores.seek(0)
         print("test")
         print(record, scores)
         json.dump(record, scores)
         scores.close
 
-def insertSortedScore(record, player) :
+def insert_sorted_score(record, player) :
     count = 0
     for ele in record :
         if ele["time"] < player["time"] :
@@ -34,11 +34,11 @@ def insertSortedScore(record, player) :
     
 
 # Run newScore("name", score) in server.py to add new record
-newScore("someone else", 3)
+new_score("someone else", 3)
 
 #/////////////////////////////////////////////////////////////////////////////#
 
-def printTopRecord(file = "scores.json") :
+def print_top_record(file = "scores.json") :
     with open(file, "r") as scores :
         record = json.load(scores)
         rank = ["First", "Second", "Third"]
@@ -49,4 +49,4 @@ def printTopRecord(file = "scores.json") :
         scores.close
 
 # Run printTopRecord() in server.py to display top 3 winners
-printTopRecord()
+print_top_record()
