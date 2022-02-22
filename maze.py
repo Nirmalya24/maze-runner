@@ -3,21 +3,27 @@
 ## Imports
 import random
 import time
-from colorama import init
-from colorama import Fore, Back, Style
 import os
 
+MAZE_WALL = "\U0001F7E8"
+FINISH = "\U0001F3C1"
+PLAYER = "\U0001F3C3"
 ## Functions
 def printMaze(maze):
+  # Clear terminal
   os.system('cls' if os.name == 'nt' else 'clear')
   for i in range(0, height):
     for j in range(0, width):
       if (maze[i][j] == 'u'):
-        print(Fore.WHITE + str(maze[i][j]), end=" ")
+        print(" u", end=" ")
       elif (maze[i][j] == 'c'):
-        print(Fore.GREEN + "  ", end=" ")
+        print("  ", end=" ")
+      elif (maze[i][j] == 'f'):
+        print(FINISH, end=" ")
+      elif (maze[i][j] == 's'):
+        print(PLAYER, end=" ")
       else:
-        print(Fore.YELLOW + " •", end=" ")
+        print(MAZE_WALL, end=" ")
       
     print('\n')
 
@@ -45,8 +51,6 @@ height = 11
 width = 27
 maze = []
 
-# Initialize colorama
-init()
 
 # Denote all cells as unvisited
 for i in range(0, height):
@@ -247,15 +251,18 @@ for i in range(0, height):
 # Set entrance and exit
 for i in range(0, width):
   if (maze[1][i] == 'c'):
-    maze[0][i] = 'c'
+    maze[0][i] = 's'
     break
 
 for i in range(width-1, 0, -1):
   if (maze[height-2][i] == 'c'):
-    maze[height-1][i] = 'c'
+    maze[height-1][i] = 'f'
     break
 
 # Print final maze
+print(maze)
 printMaze(maze)
-time.sleep(1)
-printMaze(maze)
+# print("1st print")
+# time.sleep(1)
+# printMaze(maze)
+# print("2nd print")
