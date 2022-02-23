@@ -18,6 +18,12 @@ class Maze:
     self.unvisited = 'u'
     self.visited = []
     self.path = []
+    # Player position
+    self.player_posX = -1
+    self.player_posY = -1
+    # Finish position
+    self.finish_posX = -1
+    self.finish_posY = -1
     # Maze Emoji's
     self.MAZE_WALL = "\U0001F7E8"
     self.FINISH = "\U0001F3C1"
@@ -252,18 +258,88 @@ class Maze:
         if (self.maze[i][j] == 'u'):
           self.maze[i][j] = 'w'
 
-    # Set entrance and exit
+    # Set starting position of the player
     for i in range(0, self.width):
       if (self.maze[1][i] == 'c'):
         self.maze[0][i] = 's'
+        self.player_posX = 0
+        self.player_posY = i
         break
 
+    # Set finish position of the player
     for i in range(self.width-1, 0, -1):
       if (self.maze[self.height-2][i] == 'c'):
         self.maze[self.height-1][i] = 'f'
+        self.finish_posX = self.height - 1
+        self.finish_posY = i
         break
 
+  def startGame(self):
+    x_move = -1
+    y_move = -1
+    # Player Movement
+    while True:
+
+        order = input("Please Enter (a: LEFT, s: DOWN, d: RIGHT, w: UP): ")
+
+        # Left
+        if order == "a":
+            y_move = self.player_posY - 1
+            # if reach a wall then game over
+            if self.maze[self.player_posX][y_move] == "w":
+                print("Cannot go there")
+                continue
+
+            else:
+                self.maze[self.player_posX][self.player_posY], self.maze[self.player_posX][y_move] = self.maze[self.player_posX][y_move], self.maze[self.player_posX][self.player_posY]
+                self.player_posY = y_move
+                self.printMaze()
+
+        # Down
+        elif order == "s":
+            x_move = self.player_posX + 1
+            if self.maze[x_move][self.player_posY] == "w":
+                print("Cannot go there")
+                continue
+            else:
+                self.maze[self.player_posX][self.player_posY], self.maze[x_move][self.player_posY] = self.maze[x_move][self.player_posY], self.maze[self.player_posX][self.player_posY]
+                self.player_posX = x_move
+                self.printMaze()
+
+        # Right
+        elif order == "d":
+            y_move = self.player_posY + 1
+            if self.maze[self.player_posX][y_move] == "w":
+                print("Cannot go there")
+                continue
+            else:
+                self.maze[self.player_posX][self.player_posY], self.maze[self.player_posX][y_move] = self.maze[self.player_posX][y_move], self.maze[self.player_posX][self.player_posY]
+                self.player_posY = y_move
+                self.printMaze()
+                
+
+        # Up
+        elif order == "w":
+            x_move = self.player_posX - 1
+            if self.maze[x_move][self.player_posY] == "w":
+                print("Cannot go there")
+                continue
+            else:
+                self.maze[self.player_posX][self.player_posY], self.maze[x_move][self.player_posY] = self.maze[x_move][self.player_posY], self.maze[self.player_posX][self.player_posY]
+                self.player_posX = x_move
+                self.printMaze()
+
+        # invalid input
+        else:
+            print("Please enter a valid letter (w,a,s,d)!")
+            continue
+        
+        
+        # Check if the player has reached the finish line
+        if self.maze[self.player_posX][self.player_posY] == self.maze[self.finish_posX][self.finish_posY]:
+            print("You win")
+            break
 
 playerMaze = Maze(10, 10)
 playerMaze.generateMaze()
-playerMaze.printMaze()
+playerMaze.startGame()
