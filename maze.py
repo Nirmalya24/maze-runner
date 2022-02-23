@@ -275,6 +275,7 @@ class Maze:
         break
 
   def startGame(self):
+    self.printMaze()
     x_move = -1
     y_move = -1
     # Player Movement
