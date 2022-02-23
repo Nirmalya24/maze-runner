@@ -4,23 +4,11 @@ def clear_screen():
     import os
     os.system("clear")
 
-
+# Get maze
 maze = maze_generator.MazeGenerator(10, 10)
 map_data = maze.get_maze()
-# generate a map
-# map_data = [
-#     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
-#     [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-#     [1, 2, 1, 0, 0, 0, 0, 0, 0, 1],
-#     [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-#     [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-#     [1, 0, 0, 0, 1, 0, 0, 1, 0, 1],
-#     [1, 1, 1, 0, 1, 1, 1, 1, 0, 1],
-#     [1, 1, 1, 0, 1, 1, 1, 1, 0, 0],
-#     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-#     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-# ]
-# init player's position
+
+# Init player's position
 x = 0
 y = 1
 end_x = 9
@@ -40,10 +28,6 @@ def print_map():
             else:
                 print(" X", end=" ")
         print("")
-
-
-# print out the map
-# print_map()
 
 x_move = -1
 y_move = -1
