@@ -330,6 +330,7 @@ class Maze:
                 self.player_posX = x_move
                 self.printMaze()
 
+        
         # invalid input
         else:
             print("Please enter a valid letter (w,a,s,d)!")
@@ -341,6 +342,6 @@ class Maze:
             print("You win")
             break
 
-playerMaze = Maze(10, 10)
+playerMaze = Maze(20, 20)
 playerMaze.generateMaze()
 playerMaze.startGame()
