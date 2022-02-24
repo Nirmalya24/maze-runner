@@ -28,7 +28,7 @@ class MazeGenerator:
 		self._create_entrance_exit()
 		self.print_maze()
 
-	# # Print the maze
+	# Print the maze
 	def print_maze(self):
 		for i in range(0, len(self.maze)):
 			for j in range(0, len(self.maze[0])):
