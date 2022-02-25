@@ -2,6 +2,7 @@ import socket
 import getpass # for password input
 import auth
 import time
+import User
 # from dotenv import load_dotenv
 
 # env_host = config('HOST')
@@ -33,6 +34,7 @@ def client_program(HOST, PORT):
             menu_code(response, client_socket)
     except OSError as e:
         print('Goodbye!')
+
 
 def menu_code(code, client_socket):
     if code == "0":

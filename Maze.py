@@ -341,6 +341,6 @@ class Maze:
             print("You win")
             break
 
-playerMaze = Maze(10, 10)
+playerMaze = Maze(20, 10)
 playerMaze.generateMaze()
 playerMaze.startGame()

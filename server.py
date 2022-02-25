@@ -2,11 +2,13 @@ import socket
 import threading
 import auth
 import time
+import Game
 
 class ThreadedServer(object):
   def __init__(self, host, port):
     self.host = host
     self.port = port
+    self.game = Game()
     self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     self.server_socket.bind((self.host, self.port))
@@ -24,6 +26,7 @@ class ThreadedServer(object):
     client.send(str.encode("\nWelcome to the server!\n"))
     time.sleep(0.1)
     client.send(str.encode("0"))
+    client_username = ""
     SIZE = 2048
     while True:
       try:
@@ -64,6 +67,7 @@ class ThreadedServer(object):
               print("[LOGIN FAILED] Password is incorrect")
             else:
               client.send(str.encode("3"))
+              client_username = username
               print("[LOGIN SUCCESS]", username)
         elif data == "2":
           """
@@ -105,6 +109,11 @@ class ThreadedServer(object):
           The client will play/see a game
           """
           client.send(str.encode("10"))
+        elif data == ";USERNAME;":
+          """
+          Client is requesting their username
+          """
+          client.send(str.encode(client_username))
           
       except:
         client.close()
