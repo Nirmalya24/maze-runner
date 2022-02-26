@@ -14,3 +14,7 @@ class User:
 
   def set_spectator(self):
     self.isSpectator = True
+
+  def player_move(self, x, y):
+    pass
+

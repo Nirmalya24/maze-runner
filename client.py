@@ -93,7 +93,8 @@ def menu_code(code, client_socket):
         print("\nWelcome to Maze Runner")
         print("Press 1 to see highscores")
         print("Press 2 to see game rules")
-        print("Press 3 to play/view a game")
+        print("Press 3 to play a game")
+        print("Press 4 to view a game")
         print("Type exit to disconnect")
         user_input = input(' -> ')
         if user_input == "exit":
@@ -128,7 +129,11 @@ def menu_code(code, client_socket):
         print("This feature is in development. Please check back later")
         client_socket.send(str.encode("3"))
     elif code == "10":
-        print("\nGame")
+        print("\nPlay a Game")
+        print("This feature is in development. Please check back later")
+        client_socket.send(str.encode("3"))
+    elif code == "11":
+        print("\nView a Game")
         print("This feature is in development. Please check back later")
         client_socket.send(str.encode("3"))
     else:

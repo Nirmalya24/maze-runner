@@ -106,9 +106,15 @@ class ThreadedServer(object):
         elif data == "10":
           """
           Game
-          The client will play/see a game
+          The client will play a game
           """
           client.send(str.encode("10"))
+        elif data == "11":
+          """
+          Player wants to watch a game
+          """
+          current_games = self.game.show_ongoing_games()
+          client.send(str.encode(current_games))
         elif data == ";USERNAME;":
           """
           Client is requesting their username

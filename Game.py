@@ -22,5 +22,15 @@ class Game:
     room.add_player(player)
 
   def show_ongoing_games(self):
-    return self.rooms
+    ongoing = []
+    for i in range(len(self.rooms)):
+      if len(self.rooms[i].players) == 2:
+        ongoing.append(self.rooms[i])
+    
+    return ongoing
+
+  def join_room_as_spectator(self, roomID, user):
+    self.rooms[roomID].join_as_spectator(user)
+    pass
+    
     
