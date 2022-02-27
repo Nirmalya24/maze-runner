@@ -86,11 +86,19 @@ class ThreadedServer(object):
             client.send(str.encode("7"))
             print("[REGISTER SUCCESS]", username)
         elif data == "3":
+          """
+          Game Menu
+          Press 1 to see high scores
+          Press 2 to see game rules
+          Press 3 to play/view a game
+          Type exit to disconnect
+          """
           client.send(str.encode("3"))
         elif data == "8":
           """
-          Highscores dialog
-          The client will see the top 5 highscores
+          High scores dialog
+          Press 1 to see top 5 records
+          Press 2 to see my record
           """
           client.send(str.encode("8"))
         elif data == "9":
