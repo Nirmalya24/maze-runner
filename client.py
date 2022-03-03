@@ -3,11 +3,10 @@ import getpass # for password input
 import auth
 import time
 import User
-# from dotenv import load_dotenv
 
-# env_host = config('HOST')
-# env_port = config('PORT')
-# print(env_host, env_port)
+USERNAME = ""
+ROOMID = ""
+
 
 def client_program(HOST, PORT):
     try:
@@ -90,7 +89,8 @@ def menu_code(code, client_socket):
         client_socket.send(str.encode(password))
 
     elif code == "3":
-        print("\nWelcome to Maze Runner")
+        user_obj = User(client_socket) # Create user object
+        print("\nWelcome to Maze Runner " + user_obj.get_username())
         print("Press 1 to see highscores")
         print("Press 2 to see game rules")
         print("Press 3 to play a game")
@@ -129,17 +129,29 @@ def menu_code(code, client_socket):
         print("This feature is in development. Please check back later")
         client_socket.send(str.encode("3"))
     elif code == "10":
+        """
+        Call to server: Join a game [Server side: Call Game to find a room [Game: if no rooms, create one [Room()], otherwise find an empty room]]]
+        """
         print("\nPlay a Game")
         print("This feature is in development. Please check back later")
         client_socket.send(str.encode("3"))
     elif code == "11":
         print("\nView a Game")
         print("This feature is in development. Please check back later")
+        ongoing_games = client_socket.recv(2048).decode()
+        print(ongoing_games)
         client_socket.send(str.encode("3"))
     else:
         print("Server closed connection. Please try again.\n")
         client_socket.close()
 
+
+# Prints ongoing games to the screen
+def print_ongoing_games(room_list):
+    print("\nOngoing Games")
+    for i in range(len(room_list)):
+        print(str(i) + ": " + room_list[i].get_roomID())
+        print("\t" + room_list[i].players[0].get_username() + " vs " + room_list[i].players[1].get_username())
 
 if __name__ == "__main__":
     while True:
