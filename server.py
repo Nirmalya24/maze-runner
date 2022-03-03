@@ -2,6 +2,7 @@ import socket
 import threading
 import auth
 import time
+import json
 
 class ThreadedServer(object):
   def __init__(self, host, port):
@@ -106,13 +107,64 @@ class ThreadedServer(object):
           Game rules dialog
           The client will see the game rules
           """
-          client.send(str.encode("9"))
+          rules= ""
+          rules += ("Game Rules\n")
+          rules += ("\nDisplay:")
+          rules += ("\nEach game, you and your opponent will start with a unique "
+                + "maze. You will be\nable to see your opponent's progress on "
+                + "the side maze map in live.\n👀 indicates your location; 👻 "
+                + "indicates your opponent's; 🏁 indicates\nthe exit.\n")
+          rules += ("\nInstructions:")
+          rules += ("\nPress \"W\" to go up, \"A\" to go left, \"S\" to go down, "
+                + "and \"D\" to go right. You\nwon't be able to move if you hit "
+                + "a wall. Your goal is to reach the exit point\nbefore your "
+                + "opponent. You will automatically be sent back to the lobby "
+                + "if you\nidle for 5 secones during the game.\n")
+          rules += ("\nScores:")
+          rules += ("\nThe time you spent on each round is your score. A timer "
+                + "will start when the\ngame begins and stop as soon as you "
+                + "reach the exit point. Your best score\nwill be updated to "
+                + "the record board where you may visit from Game Menu.\n")
+          client.send(str.encode(rules))
         elif data == "10":
           """
           Game
           The client will play/see a game
           """
           client.send(str.encode("10"))
+        elif data == "11":
+          """
+          Display top 5 records
+          """
+          display = ""
+          file = "scores.json"
+          with open(file, "r") as scores :
+            record = json.load(scores)
+            rank = ["First", "Second", "Third", "Fourth", "Fifth"]
+            for i in range(0, 5) :
+              display += (rank[i] + " place:\t" + record[i]["name"] 
+                          + " in " + str(record[i]["time"]) + " seconds!\n")
+            scores.close
+          client.send(str.encode(display))  
+        elif data == "12":
+          """
+          Display player's top record
+          """
+          name = "mazeRunner"   #user.get_name PENDING USER CLASS
+          display = ""
+          with open(file, "r") as scores :
+            record = json.load(scores)
+            found = False
+            for ele in record :
+              if ele["name"] == name :
+                display += (ele["name"] + "'s best score: " 
+                            + str(ele["time"]) + " seconds.\n")
+                found = True
+                break
+            if not found :
+              display = (name + " is not found in record.\n")
+            scores.close
+          client.send(str.encode(display))
           
       except:
         client.close()
