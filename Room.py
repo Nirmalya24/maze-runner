@@ -1,12 +1,13 @@
 import random
 import Maze
 
+
 class Room:
-  def __init__(self, client_socket):
+  def __init__(self):
     self.roomID = self.create_room()
     self.players = {}
     self.spectators = {}
-    self.mazeGame = Maze(20, 10)
+    self.mazeGame = Maze.Maze(20, 10)
     self.finished = False
     self.started = True
 
@@ -14,16 +15,17 @@ class Room:
   Room Functions
   """
 
-  # Creates a room with a random 3 letter code and returns it.
-  def create_room(self):
+  # Creates a room with a random 3-letter code and returns it.
+  @staticmethod
+  def create_room():
     room_code = ""
     for i in range(3):
       room_code += chr(random.randint(ord('A'), ord('Z')))
-    
+
     return room_code
 
   # Returns the roomID
-  def get_roomID(self):
+  def get_room_id(self):
     return self.roomID
 
   # Check if the room is empty
@@ -46,7 +48,6 @@ class Room:
   def is_finished(self):
     return self.finished and self.started
 
-
   """
   User Functions (player/spectator)
   """
@@ -54,21 +55,20 @@ class Room:
   # Add a user as a player to the room
   # Returns True if the user was added, False otherwise
   def add_player(self, user):
-    user.set_player() # Change the user to a player
-    if len(self.players < 2):
+    user.set_player()  # Change the user to a player
+    if len(self.players) < 2:
       self.players[user.get_username()] = user
       # TODO Update player position to starting position
-
+      self.players[user.get_username()].posX, self.players[user.get_username()].posY = self.mazeGame.get_start_pos()
       return True
     return False
 
   # Add a user as a spectator to the room
   # Returns True if the user was added, False otherwise
   def add_spectator(self, user):
-    user.set_spectator() # Change the user to a spectator
+    user.set_spectator()  # Change the user to a spectator
     # Add spectator to the list of spectators
     self.spectators[user.get_username()] = user
-
 
   # Gets the list of players in the room
   # Returns a list of players
@@ -93,18 +93,17 @@ class Room:
 
   # Update player position
   def update_player_position(self, player_move, username):
-    if player_move == "up":
+    if player_move == "w":
       self.players[username].set_posX(self.players[username].get_posX() - 1)
-    elif player_move == "down":
+    elif player_move == "s":
       self.players[username].set_posX(self.players[username].get_posX() + 1)
-    elif player_move == "left":
+    elif player_move == "a":
       self.players[username].set_posY(self.players[username].get_posY() - 1)
-    elif player_move == "right":
+    elif player_move == "d":
       self.players[username].set_posY(self.players[username].get_posY() + 1)
-    
-    # TODO: Check if the player has won the game
 
-    
+    # TODO: Check if the player has won the game
+    self.check_win(username)
 
   """
   Maze functions
@@ -116,26 +115,10 @@ class Room:
     return self.mazeGame.get_maze()
 
   # Returns True if the player has won the game, False otherwise
-  def check_win(self):
-    for player in self.players:
-      if player.get_pos() == self.mazeGame.get_finish_pos():
-        player.set_winner(True)
-        self.room_finished()
-        return True
-    return False
+  def check_win(self, username):
+    return self.players[username].get_pos() == self.mazeGame.get_finish_pos()
 
   def check_move(self, player_move, username):
-    # TODO: Check if the player can move to the given position
-    pass
-
-
-  
-
-
-
-
-
-
-    
-
-
+    # DONE: Check if the player can move to the given position
+    player_x, player_y = self.players[username].get_pos()
+    return self.mazeGame.is_valid_move(player_x, player_y, player_move)
