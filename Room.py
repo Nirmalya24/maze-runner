@@ -29,9 +29,9 @@ class Room:
   # Check if the room is empty
   # If the room has less than 2 players, the room is considered empty
   def is_empty(self):
-    if len(self.players) > 2:
-      return False
-    return True
+    if len(self.players) < 2:
+      return True
+    return False
 
   # Mark room as finished
   def room_finished(self):
@@ -69,6 +69,7 @@ class Room:
     # Add spectator to the list of spectators
     self.spectators[user.get_username()] = user
 
+
   # Gets the list of players in the room
   # Returns a list of players
   def get_players(self):
@@ -76,7 +77,7 @@ class Room:
 
   # Gets the list of spectators in the room
   # Returns the list of spectators in the room
-  def get_spectator(self):
+  def get_spectators(self):
     return self.spectators
 
   """

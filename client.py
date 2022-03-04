@@ -1,3 +1,4 @@
+from ctypes.wintypes import SIZE
 import socket
 import getpass # for password input
 import auth
@@ -138,8 +139,15 @@ def menu_code(code, client_socket):
     elif code == "11":
         print("\nView a Game")
         print("This feature is in development. Please check back later")
-        ongoing_games = client_socket.recv(2048).decode()
+        ongoing_games = client_socket.recv(SIZE).decode()
         print(ongoing_games)
+
+        # TODO: Get user input on which game to view
+
+        # TODO: Send view game code to server
+
+        # TODO: Receive game data from server
+
         client_socket.send(str.encode("3"))
     else:
         print("Server closed connection. Please try again.\n")
@@ -152,6 +160,15 @@ def print_ongoing_games(room_list):
     for i in range(len(room_list)):
         print(str(i) + ": " + room_list[i].get_roomID())
         print("\t" + room_list[i].players[0].get_username() + " vs " + room_list[i].players[1].get_username())
+        """
+        Example: 
+        1. GHY
+            user1 vs user2
+        2. UIO
+            user7 vs user 5
+
+        Which game to view? 
+        """
 
 if __name__ == "__main__":
     while True:
