@@ -1,15 +1,18 @@
 import socket
 import threading
+
+import User
 import auth
 import time
 import Game
+
 
 class ThreadedServer(object):
   def __init__(self, host, port):
     self.host = host
     self.port = port
-    self.game = Game()
-    self.client_username = ""
+    self.game = Game.Game()
+
     self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     self.server_socket.bind((self.host, self.port))
@@ -21,9 +24,12 @@ class ThreadedServer(object):
       client, address = self.server_socket.accept()
       print("[CLIENT CONNECTED]", address)
       client.settimeout(60)
-      threading.Thread(target = self.listen_to_client,args = (client,address)).start()
-  
+      threading.Thread(target=self.listen_to_client, args=(client, address)).start()
+
   def listen_to_client(self, client, address):
+    # Global variables for the thread
+    user_obj = None
+    client_username = ""
     client.send(str.encode("\nWelcome to the server!\n"))
     time.sleep(0.1)
     client.send(str.encode("0"))
@@ -56,18 +62,19 @@ class ThreadedServer(object):
           password = client.recv(SIZE).decode()
           print(f"[LOGIN] {username} | {password}")
           # Check if username in users.json
-          if auth.check_user_exist(username) == False:
+          if not auth.check_user_exist(username):
             client.send(str.encode("5"))
             print("[LOGIN FAILED] Username does not exist")
           else:
             # Check if password is correct
             print("Checking password...")
-            if auth.check_user_password(username, password) == False:
+            if not auth.check_user_password(username, password):
               client.send(str.encode("6"))
               print("[LOGIN FAILED] Password is incorrect")
             else:
               client.send(str.encode("3"))
-              self.client_username = username
+              client_username = username
+              user_obj = User.User(client)
               print("[LOGIN SUCCESS]", username)
         elif data == "2":
           """
@@ -81,7 +88,7 @@ class ThreadedServer(object):
           password = client.recv(SIZE).decode()
           print(f"[REGISTER] {username} | {password}")
           # Check if username in users.json
-          if auth.check_user_exist(username) == True:
+          if auth.check_user_exist(username):
             client.send(str.encode("4"))
             print("[REGISTER FAILED] Username already exists")
           else:
@@ -113,10 +120,12 @@ class ThreadedServer(object):
           # Check if an empty room is available or create a Room in Games
           if len(self.game.find_empty_room()) == 0:
             self.game.create_room()
-          
-          user_room = self.game.join_as_player(user_obj) # Add user to room
+
+          user_room = self.game.join_as_player(user_obj)  # Add user to room
           room_id = user_room.get_room_id()
           print(f"[GAME] Added {user_obj.get_username()} to {room_id}")
+          # Send room id to client
+          client.send(str.encode(room_id))
 
           # Enter the Game Room loop
           while not user_room.is_finished() and not user_room.check_win():
@@ -135,7 +144,7 @@ class ThreadedServer(object):
               # Get the player's move from the client
               player_move = client.recv(SIZE).decode()
               # Check if the player's move is valid
-              if user_room.check_move(player_move, user_obj.get_username()) == False:
+              if not user_room.check_move(player_move, user_obj.get_username()):
                 client.send(str.encode("Invalid move"))
                 continue
 
@@ -143,7 +152,7 @@ class ThreadedServer(object):
               user_room.update_player_pos(player_move, user_obj.get_username())
               # Check if the player has won the game
               pass
-            
+
           client.send(str.encode("10"))
         elif data == "11":
           """
@@ -155,18 +164,19 @@ class ThreadedServer(object):
 
         elif data == ";WATCH;":
           roomID = client.recv(SIZE).decode()
-          print(f"[WATCH] {self.client_username} is watching room {roomID}")
-          self.game.add_spectator(self.client_username, roomID)
+          print(f"[WATCH] {client_username} is watching room {roomID}")
+          self.game.join_as_spectator(user_obj, roomID)
 
         elif data == ";USERNAME;":
           """
           Client is requesting their username
           """
-          client.send(str.encode(self.client_username))
-          
+          client.send(str.encode(client_username))
+
       except:
         client.close()
         return False
+
 
 if __name__ == "__main__":
   while True:
