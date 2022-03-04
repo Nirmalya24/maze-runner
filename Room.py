@@ -94,13 +94,13 @@ class Room:
   # Update player position
   def update_player_position(self, player_move, username):
     if player_move == "up":
-      self.players[username].set_posY(self.players[username].get_posY() - 1)
-    elif player_move == "down":
-      self.players[username].set_posY(self.players[username].get_posY() + 1)
-    elif player_move == "left":
       self.players[username].set_posX(self.players[username].get_posX() - 1)
-    elif player_move == "right":
+    elif player_move == "down":
       self.players[username].set_posX(self.players[username].get_posX() + 1)
+    elif player_move == "left":
+      self.players[username].set_posY(self.players[username].get_posY() - 1)
+    elif player_move == "right":
+      self.players[username].set_posY(self.players[username].get_posY() + 1)
     
     # TODO: Check if the player has won the game
 
