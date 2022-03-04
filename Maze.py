@@ -29,6 +29,14 @@ class Maze:
     self.FINISH = "\U0001F3C1"
     self.PLAYER = "\U0001F3C3"
 
+  # Return the finish x, y position
+  def get_finish_pos(self):
+    return [self.finish_posX, self.finish_posY]
+
+  # Return the starting x, y position
+  def get_start_pos(self):
+    return [self.starting_posX, self.starting_posY]
+
   def printMaze(self):
   # Clear terminal
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -267,7 +275,7 @@ class Maze:
         self.starting_posY = i
         break
 
-    # Set finish position of the player
+    # Set finish position of the maze
     for i in range(self.width-1, 0, -1):
       if (self.maze_data[self.height-2][i] == 'c'):
         self.maze_data[self.height-1][i] = 'f'

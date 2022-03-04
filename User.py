@@ -44,6 +44,9 @@ class User:
   
   def get_posY(self):
     return self.posY
+
+  def get_pos(self):
+    return [self.posX, self.posY]
   
   def set_winner(self, winner):
     self.winner = winner

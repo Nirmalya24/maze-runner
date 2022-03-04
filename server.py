@@ -119,9 +119,10 @@ class ThreadedServer(object):
           print(f"[GAME] Added {user_obj.get_username()} to {room_id}")
 
           # Enter the Game Room loop
-          while user_room.is_finished == False:
+          while not user_room.is_finished() and not user_room.check_win():
             if len(user_room.get_players()) < 2:
               client.send(str.encode("Waiting for another player..."))
+              print(f"[GAME] Waiting for another player in ROOM: {room_id}")
               time.sleep(1)
               continue
             else:

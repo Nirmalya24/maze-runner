@@ -115,8 +115,13 @@ class Room:
     return self.mazeGame.get_maze()
 
   # Returns True if the player has won the game, False otherwise
-  def check_win(self, username):
-    
+  def check_win(self):
+    for player in self.players:
+      if player.get_pos() == self.mazeGame.get_finish_pos():
+        player.set_winner(True)
+        self.room_finished()
+        return True
+    return False
 
   def check_move(self, player_move, username):
     # TODO: Check if the player can move to the given position
