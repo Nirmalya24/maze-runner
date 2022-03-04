@@ -7,7 +7,7 @@ import User
 
 USERNAME = ""
 ROOMID = ""
-
+global user_obj # global user object
 
 def client_program(HOST, PORT):
     try:
@@ -136,6 +136,14 @@ def menu_code(code, client_socket):
         print("\nPlay a Game")
         print("This feature is in development. Please check back later")
         client_socket.send(str.encode("3"))
+
+        # Send code 10 to the server to initiate a game
+        # Wait for server to either create a game or find an existing game
+        # Receive room ID from server
+        # TODO: Code to receive room ID
+        room_id = client_socket.recv(SIZE).decode()
+        user_obj.set_roomID(room_id)
+
     elif code == "11":
         print("\nView a Game")
         print("This feature is in development. Please check back later")
@@ -158,7 +166,7 @@ def menu_code(code, client_socket):
 def print_ongoing_games(room_list):
     print("\nOngoing Games")
     for i in range(len(room_list)):
-        print(str(i) + ": " + room_list[i].get_roomID())
+        print(str(i) + ": " + room_list[i].get_room_id())
         print("\t" + room_list[i].players[0].get_username() + " vs " + room_list[i].players[1].get_username())
         """
         Example: 
