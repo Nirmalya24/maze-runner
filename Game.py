@@ -1,21 +1,21 @@
-from sys import flags
 import Room
+
 
 class Game:
   """
   Constructor.
   Initializes a Game object with no rooms.
   """
-  def __intit__(self):
+
+  def __init__(self):
     self.rooms = []
 
-  
   # Creates a room and append it to the list of rooms.
   def create_room(self):
-    new_room = Room.Room() # Create a new room
+    new_room = Room.Room()  # Create a new room
 
     # Check if the room already exists
-    while self.find_room(new_room.get_roomID()):
+    while self.find_room(new_room.get_room_id()):
       # Generate a new room if the room already exists
       new_room = Room.Room()
     # Add the room to the rooms list
@@ -25,7 +25,7 @@ class Game:
   # returns True if the room exists, False otherwise
   def find_room(self, roomID):
     for i in range(len(self.rooms)):
-      if self.rooms[i].get_roomID() == roomID:
+      if self.rooms[i].get_room_id() == roomID:
         return True
     return False
 
@@ -34,9 +34,10 @@ class Game:
   has finished playing the game.
   Deletes the room if it has finished and returns True.
   """
+
   def delete_room(self, roomID):
     for i in range(len(self.rooms)):
-      if self.rooms[i].get_roomID() == roomID and self.rooms[i].is_finished():
+      if self.rooms[i].get_room_id() == roomID and self.rooms[i].is_finished():
         del self.rooms[i]
         return True
     return False
@@ -64,6 +65,5 @@ class Game:
     for i in range(len(self.rooms)):
       if len(self.rooms[i].get_players()) == 2 and not self.rooms[i].is_finished():
         ongoing.append(self.rooms[i])
-    
-    return ongoing
 
+    return ongoing
