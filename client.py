@@ -1,192 +1,181 @@
-from ctypes.wintypes import SIZE
 import socket
-import getpass # for password input
+import getpass  # for password input
 import auth
 import time
-import User
+import Maze
 
-USERNAME = ""
-ROOMID = ""
-global user_obj # global user object
+YELLOW = "\033[1;33m"
+END = "\033[0m"
+# Data packet size is 2048 bytes to be received from server
+SIZE = 2048
 
-def client_program(HOST, PORT):
-    try:
-        # Data packet size is 2048 bytes to be received from server
-        SIZE = 2048
 
-        # Socket instance
-        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # Connect to the server
-        client_socket.connect((HOST, PORT))
+def client_program(host, port):
+  try:
+    # Socket instance
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # Connect to the server
+    client_socket.connect((host, port))
 
-        # Receive Welcome message
-        response = client_socket.recv(SIZE).decode()
-        print(response)
-        # Receive Welcome Menu code from server
-        response = client_socket.recv(SIZE).decode()
-        # Print Welcome Menu
-        menu_code(response, client_socket)
-        
-        # Receive next menu code from server
-        while response:
-            response = client_socket.recv(SIZE).decode()
-            # print(response)
-            menu_code(response, client_socket)
-    except OSError as e:
-        print('Goodbye!')
+    # Receive Welcome message
+    response = client_socket.recv(SIZE).decode()
+    print(response)
+    # Receive Welcome Menu code from server
+    response = client_socket.recv(SIZE).decode()
+    # Print Welcome Menu
+    menu_code(response, client_socket)
+
+    # Receive next menu code from server
+    while response:
+      response = client_socket.recv(SIZE).decode()
+      print(YELLOW, "[DEBUG] ", response, END)
+      menu_code(response, client_socket)
+  except OSError:
+    print('Goodbye!')
 
 
 def menu_code(code, client_socket):
-    if code == "0":
-        print("Press 1 to Login")
-        print("Press 2 to Register")
-        print("Type exit to disconnect")
-        user_input = input(' -> ')
-        if user_input == "exit":
-            # Send exit code to server
-            client_socket.send(str.encode(user_input))
-            # Close client connection
-            client_socket.close()
-            return
-        client_socket.send(str.encode(user_input))
-    elif code == "1":
-        print("\nLogin dialog")
-        
-        username = input("Username: ")
-        while auth.check_username(username) == False:
-            print("Username must be at least 3 characters long and only letters")
-            username = input("Username: ")
-            username = username.lower()
-        client_socket.send(str.encode(username))
-        
-        # Password input
-        password = getpass.getpass()
-        while auth.check_password(password) == False:
-            print("Password must be at least 4 characters long.")
-            password = getpass.getpass()
-        print("Sending password to server...")
-        # Hash the password entered by the user
-        # password = auth.hash_password(password)
-        client_socket.send(str.encode(password))
+  if code == "0":
+    print("Press 1 to Login")
+    print("Press 2 to Register")
+    print("Type exit to disconnect")
+    user_input = input(' -> ')
+    if user_input == "exit":
+      # Send exit code to server
+      client_socket.send(str.encode(user_input))
+      # Close client connection
+      client_socket.close()
+      return
+    client_socket.send(str.encode(user_input))
+  elif code == "1":
+    print("\nLogin dialog")
 
-    elif code == "2":
-        print("\nRegistration dialog")
+    credentials_input(client_socket, True)
 
-        username = input("Username: ")
-        while auth.check_username(username) == False:
-            print("Username must be at least 3 characters long and only letters")
-            username = input("Username: ")
-            username = username.lower()
-        client_socket.send(str.encode(username))
+  elif code == "2":
+    print("\nRegistration dialog")
 
-        # Password input
-        password = getpass.getpass()
-        while auth.check_password(password) == False:
-            print("Password must be at least 4 characters long.")
-            password = getpass.getpass()
+    credentials_input(client_socket, False)
 
-        # Hash the password entered by the user
-        password = auth.hash_password(password)
-        client_socket.send(str.encode(password))
+  elif code == "3":
 
-    elif code == "3":
-        user_obj = User(client_socket) # Create user object
-        print("\nWelcome to Maze Runner " + user_obj.get_username())
-        print("Press 1 to see highscores")
-        print("Press 2 to see game rules")
-        print("Press 3 to play a game")
-        print("Press 4 to view a game")
-        print("Type exit to disconnect")
-        user_input = input(' -> ')
-        if user_input == "exit":
-            client_socket.close()
-            return
-        else:
-            user_input = int(user_input) + 7
+    # Receive username from server
+    Username = client_socket.recv(SIZE).decode()
 
-        client_socket.send(str.encode(str(user_input)))
-    elif code == "4":
-        print("Username already exists. Please try again.\n")
-        # Send welcome menu code to server
-        client_socket.send(str.encode("0"))
-    elif code == "5":
-        print("Username does not exist.\n")
-        # Send welcome menu code to server
-        client_socket.send(str.encode("0"))
-    elif code == "6":
-        print("Incorrect Password.\n")
-        # Send welcome menu code to server
-        client_socket.send(str.encode("0"))
-    elif code == "7":
-        print("Registration success!\n")
-        # Send welcome menu code to server
-        client_socket.send(str.encode("0"))
-    elif code == "8":
-        print("\nHighscores")
-        print("This feature is in development. Please check back later")
-        client_socket.send(str.encode("3"))
-    elif code == "9":
-        print("\nGame Rules")
-        print("This feature is in development. Please check back later")
-        client_socket.send(str.encode("3"))
-    elif code == "10":
-        """
-        Call to server: Join a game [Server side: Call Game to find a room [Game: if no rooms, create one [Room()], otherwise find an empty room]]]
-        """
-        print("\nPlay a Game")
-        print("This feature is in development. Please check back later")
-        client_socket.send(str.encode("3"))
-
-        # Send code 10 to the server to initiate a game
-        # Wait for server to either create a game or find an existing game
-        # Receive room ID from server
-        # TODO: Code to receive room ID
-        room_id = client_socket.recv(SIZE).decode()
-        user_obj.set_roomID(room_id)
-
-    elif code == "11":
-        print("\nView a Game")
-        print("This feature is in development. Please check back later")
-        ongoing_games = client_socket.recv(SIZE).decode()
-        print(ongoing_games)
-
-        # TODO: Get user input on which game to view
-
-        # TODO: Send view game code to server
-
-        # TODO: Receive game data from server
-
-        client_socket.send(str.encode("3"))
+    print("\nWelcome to Maze Runner " + Username)
+    print("Press 1 to see highscores")
+    print("Press 2 to see game rules")
+    print("Press 3 to play a game")
+    print("Type exit to disconnect")
+    user_input = input(' -> ')
+    if user_input == "exit":
+      client_socket.close()
+      return
     else:
-        print("Server closed connection. Please try again.\n")
-        client_socket.close()
+      user_input = int(user_input) + 7
 
+    print("[DEBUG] Sending menu code to server... ", str(user_input))
+    client_socket.send(str.encode(str(user_input)))
+    # time.sleep(1)
 
-# Prints ongoing games to the screen
-def print_ongoing_games(room_list):
-    print("\nOngoing Games")
-    for i in range(len(room_list)):
-        print(str(i) + ": " + room_list[i].get_room_id())
-        print("\t" + room_list[i].players[0].get_username() + " vs " + room_list[i].players[1].get_username())
+  elif code == "4":
+    print("Username already exists. Please try again.\n")
+    # Send welcome menu code to server
+    client_socket.send(str.encode("0"))
+  elif code == "5":
+    print("Username does not exist.\n")
+    # Send welcome menu code to server
+    client_socket.send(str.encode("0"))
+  elif code == "6":
+    print("Incorrect Password.\n")
+    # Send welcome menu code to server
+    client_socket.send(str.encode("0"))
+  elif code == "7":
+    print("Registration success!\n")
+    # Send welcome menu code to server
+    client_socket.send(str.encode("0"))
+  elif code == "8":
+    print("\nHighscores")
+    print("This feature is in development. Please check back later")
+    client_socket.send(str.encode("3"))
+  elif code == "9":
+    time.sleep(0.5)
+    game_rules = client_socket.recv(SIZE).decode()
+    print(game_rules)
+    print("\nPress 1 to return to menu, exit to disconnect")
+    user_input = input(' -> ')
+    # TODO: Implement wrong user input handle
+    # while not user_input == "1" and not user_input == "exit":
+    #     print("Invalid input. Please try again.")
+    #     user_input = input(' -> ')
+    if user_input == "1":
+      client_socket.send(str.encode("3"))
+    elif user_input == "exit":
+      client_socket.close()
+
+  elif code == "10":
+    """
+        Play a Game
         """
-        Example: 
-        1. GHY
-            user1 vs user2
-        2. UIO
-            user7 vs user 5
+    print("\nSelect Difficulty: ")
+    print("1. Easy")
+    print("2. Medium")
+    print("3. Hard")
+    print("4. Insane (Please have a wide terminal window)")
+    print(YELLOW, "Note: Please resize your terminal to the biggest size possible. Thanks :D", END)
+    user_input = input(' -> ')
 
-        Which game to view? 
-        """
+    while not user_input == "1" and not user_input == "2" and not user_input == "3":
+      print("Invalid input. Please try again.")
+      user_input = input(' -> ')
+
+    user_input = int(user_input)
+
+    maze = Maze.Maze(user_input)
+    maze.start_game()
+
+    time.sleep(1)
+
+    client_socket.send(str.encode("3"))
+
+  else:
+    print("Server closed connection. Please try again.\n")
+    client_socket.close()
+
+
+def credentials_input(client_socket, login):
+  username = input("Username: ")
+  while not auth.check_username(username):
+    print("Username must be at least 3 characters long and only letters")
+    username = input("Username: ")
+    username = username.lower()
+  client_socket.send(str.encode(username))
+
+  # Password input
+  password = getpass.getpass()
+  while not auth.check_password(password):
+    print("Password must be at least 4 characters long.")
+    password = getpass.getpass()
+
+  if login:
+    print("Sending password to server...")
+    # Hash the password entered by the user
+    # password = auth.hash_password(password)
+    client_socket.send(str.encode(password))
+  else:
+    # Hash the password entered by the user
+    password = auth.hash_password(password)
+    client_socket.send(str.encode(password))
+
 
 if __name__ == "__main__":
-    while True:
-        PORT = input("Port: ")
-        try:
-            PORT = int(PORT)
-            break
-        except ValueError:
-            print("Invalid port number")
-    # Get host name
-    HOST = socket.gethostbyname(socket.gethostname())
-    client_program(HOST, PORT)
-
+  while True:
+    PORT = input("Port: ")
+    try:
+      PORT = int(PORT)
+      break
+    except ValueError:
+      print("Invalid port number")
+  # Get host name
+  HOST = socket.gethostbyname(socket.gethostname())
+  client_program(HOST, PORT)

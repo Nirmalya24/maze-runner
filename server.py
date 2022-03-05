@@ -1,17 +1,13 @@
 import socket
 import threading
-
-import User
 import auth
 import time
-import Game
 
 
 class ThreadedServer(object):
   def __init__(self, host, port):
     self.host = host
     self.port = port
-    self.game = Game.Game()
 
     self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -26,9 +22,8 @@ class ThreadedServer(object):
       client.settimeout(60)
       threading.Thread(target=self.listen_to_client, args=(client, address)).start()
 
-  def listen_to_client(self, client, address):
-    # Global variables for the thread
-    user_obj = None
+  @staticmethod
+  def listen_to_client(client, address):
     client_username = ""
     client.send(str.encode("\nWelcome to the server!\n"))
     time.sleep(0.1)
@@ -74,8 +69,9 @@ class ThreadedServer(object):
             else:
               client.send(str.encode("3"))
               client_username = username
-              user_obj = User.User(client)
-              print("[LOGIN SUCCESS]", username)
+              time.sleep(0.5)
+              client.send(str.encode(client_username))
+              print("[LOGIN SUCCESS] ", client_username)
         elif data == "2":
           """
           Register dialog
@@ -98,6 +94,7 @@ class ThreadedServer(object):
             print("[REGISTER SUCCESS]", username)
         elif data == "3":
           client.send(str.encode("3"))
+          client.send(str.endcode(client_username))
         elif data == "8":
           """
           Highscores dialog
@@ -109,69 +106,32 @@ class ThreadedServer(object):
           Game rules dialog
           The client will see the game rules
           """
+          print("[SERVER] Received game rules request")
           client.send(str.encode("9"))
+
+          rules = ""
+          rules += "Game Rules\n"
+          rules += "\nDisplay:"
+          rules += "\nEach game, your position in the maze is indicated by 🏃\n 🏁 indicates the exit.\n"
+          rules += "\nInstructions:"
+          rules += ("\nPress \"W\" to go up, \"A\" to go left, \"S\" to go down, "
+                    + "and \"D\" to go right. You\nwon't be able to move if you hit "
+                    + "a wall. Your goal is to reach the exit point\n")
+          rules += "\nScores:"
+          rules += ("\nThe time you spent on each round is your score. A timer "
+                    + "will start when the\ngame begins and stop as soon as you "
+                    + "reach the exit point. Your best score\nwill be updated to "
+                    + "the record board where you may visit from Game Menu.\n")
+          print("[SERVER] Sending game rules to client")
+          time.sleep(1)
+          client.send(str.encode(rules))
         elif data == "10":
           """
           Game
           The client will play a game
           """
-          # Get the user object from client
-          user_obj = client.recv(SIZE).decode()
-          # Check if an empty room is available or create a Room in Games
-          if len(self.game.find_empty_room()) == 0:
-            self.game.create_room()
-
-          user_room = self.game.join_as_player(user_obj)  # Add user to room
-          room_id = user_room.get_room_id()
-          print(f"[GAME] Added {user_obj.get_username()} to {room_id}")
-          # Send room id to client
-          client.send(str.encode(room_id))
-
-          # Enter the Game Room loop
-          while not user_room.is_finished() and not user_room.check_win():
-            if len(user_room.get_players()) < 2:
-              client.send(str.encode("Waiting for another player..."))
-              print(f"[GAME] Waiting for another player in ROOM: {room_id}")
-              time.sleep(1)
-              continue
-            else:
-              # Send the maze to the client
-              maze = user_room.get_maze()
-              client.send(str.encode(maze))
-              # Send the player's position to the client
-              player_pos = user_room.get_player_positions()
-              client.send(str.encode(player_pos))
-              # Get the player's move from the client
-              player_move = client.recv(SIZE).decode()
-              # Check if the player's move is valid
-              if not user_room.check_move(player_move, user_obj.get_username()):
-                client.send(str.encode("Invalid move"))
-                continue
-
-              # Update the player's position
-              user_room.update_player_pos(player_move, user_obj.get_username())
-              # Check if the player has won the game
-              pass
-
+          print("[SERVER] Received a request to play a game")
           client.send(str.encode("10"))
-        elif data == "11":
-          """
-          User wants to watch a game
-          """
-          current_games = self.game.show_ongoing_games()
-          client.send(str.encode("11"))
-          client.send(str.encode(current_games))
-
-        elif data == ";WATCH;":
-          roomID = client.recv(SIZE).decode()
-          print(f"[WATCH] {client_username} is watching room {roomID}")
-          self.game.join_as_spectator(user_obj, roomID)
-
-        elif data == ";USERNAME;":
-          """
-          Client is requesting their username
-          """
-          client.send(str.encode(client_username))
 
       except:
         client.close()
