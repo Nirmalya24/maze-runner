@@ -34,9 +34,9 @@ class Server(object):
     def startup(self):
         """startup the server"""
         while True:
-            print("Connecting to client...")
+            print("[SERVER] Listening on port: ", self.server_socket.port, "...")
             soc, addr = self.server_socket.accept()
-            print('Accepted', addr)
+            print('[SERVER] Client Connection received: ', addr)
 
             client_soc = SocketWrapper(soc)  # init the client sockets
 
@@ -228,12 +228,7 @@ class Server(object):
         request_data = dict()
         request_data['request_id'] = request_list[0]
 
-        if request_data['request_id'] == REQUEST_LOGIN:
-
-            request_data['username'] = request_list[1]
-            request_data['password'] = request_list[2]
-
-        elif request_data['request_id'] == REQUEST_REGISTER:
+        if request_data['request_id'] == REQUEST_LOGIN or request_data['request_id'] == REQUEST_REGISTER:
 
             request_data['username'] = request_list[1]
             request_data['password'] = request_list[2]
