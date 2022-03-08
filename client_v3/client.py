@@ -1,10 +1,10 @@
 import sys
 from threading import Thread
 
-from Maze import *
-from Timer import *
+import Maze
+import Timer
 from client_socket import ClientSocket
-from config import *
+import config
 from request_protocol import RequestProtocol
 
 
