@@ -4,7 +4,7 @@ from threading import Thread
 import Maze
 import Timer
 from client_socket import ClientSocket
-import config
+from config import *
 from request_protocol import RequestProtocol
 
 
