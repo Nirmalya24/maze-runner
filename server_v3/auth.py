@@ -7,6 +7,7 @@ import json
 import re
 import uuid
 
+FILE_SCORES = "users.json"
 
 # [CLIENT] This function generates a hashed password
 def hash_password(password):
@@ -49,7 +50,7 @@ def check_password(password):
 # [SERVER] Check if user exist in users.json
 def check_user_exist(username):
     flag = False
-    with open('users.json', 'r') as f:
+    with open(FILE_SCORES, 'r') as f:
         users = json.load(f)
         for user in users:
             if user['username'] == username:
@@ -60,7 +61,7 @@ def check_user_exist(username):
 # [SERVER] Check if user password is correct
 def check_user_password(username, password):
     flag = False
-    with open('users.json', 'r') as f:
+    with open(FILE_SCORES, 'r') as f:
         users = json.load(f)
         for user in users:
             if user['username'] == username and check_hash_password(user['password'], password):
@@ -70,14 +71,14 @@ def check_user_password(username, password):
 
 # [SERVER] Add user to users.json
 def add_user(username, password):
-    with open('users.json', 'r') as f:
+    with open(FILE_SCORES, 'r') as f:
         users = json.load(f)
     user = {
         'username': username,
         'password': hash_password(password)
     }
     users.append(user)
-    with open('users.json', 'w') as f:
+    with open(FILE_SCORES, 'w') as f:
         json.dump(users, f)
 
 # if __name__ == "__main__":
