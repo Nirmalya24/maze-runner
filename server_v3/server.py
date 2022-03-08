@@ -19,9 +19,12 @@ class Server(object):
         self.register_service(REQUEST_REGISTER, self.request_register_handle)
         self.register_service(REQUEST_SHOW_RULE, self.request_show_rule_handle)
         self.register_service(REQUEST_PLAY_GAME, self.request_play_game_handle)
-        self.register_service(REQUEST_SEND_SCORE, self.request_send_score_handle)
-        self.register_service(REQUEST_HIGH_SCORES, self.request_high_scores_handle)
-        self.register_service(REQUEST_SEND_DIFFICULTY, self.request_send_difficulty_handle)
+        self.register_service(REQUEST_SEND_SCORE,
+                              self.request_send_score_handle)
+        self.register_service(REQUEST_HIGH_SCORES,
+                              self.request_high_scores_handle)
+        self.register_service(REQUEST_SEND_DIFFICULTY,
+                              self.request_send_difficulty_handle)
 
         self.clients = dict()  # to store online clients
         self.room = 0  # room space
@@ -34,7 +37,7 @@ class Server(object):
     def startup(self):
         """startup the server"""
         while True:
-            print("[SERVER] Listening on port: ", self.server_socket.port, "...")
+            print("[SERVER] Started ...")
             soc, addr = self.server_socket.accept()
             print('[SERVER] Client Connection received: ', addr)
 
@@ -57,7 +60,8 @@ class Server(object):
 
             parse_data = self.parse_request_text(recv_data)
 
-            handle_function = self.request_handle_function.get(parse_data['request_id'])
+            handle_function = self.request_handle_function.get(
+                parse_data['request_id'])
             if handle_function:
                 handle_function(client_soc, parse_data)
 
@@ -78,7 +82,8 @@ class Server(object):
 
         print("send diff", response_difficulty)
 
-        response_text = ResponseProtocol.response_send_difficulty(response_difficulty)
+        response_text = ResponseProtocol.response_send_difficulty(
+            response_difficulty)
         client_soc.send_data(response_text)
         print("RESPONSE SELECT DIFFICULTY SENT")
 
@@ -88,7 +93,8 @@ class Server(object):
         password = request_data['password']
         result, username = self.register_user(username, password)
         if result == '0':
-            response_text = ResponseProtocol.response_register_result(result, username)
+            response_text = ResponseProtocol.response_register_result(
+                result, username)
             client_soc.send_data(response_text)
 
     def register_user(self, username, password):
@@ -107,7 +113,8 @@ class Server(object):
 
             print('Current online client: ', self.clients)
 
-        response_text = ResponseProtocol.response_login_result(result, username)
+        response_text = ResponseProtocol.response_login_result(
+            result, username)
         client_soc.send_data(response_text)
 
     def check_user_login(self, username, password):
@@ -153,10 +160,10 @@ class Server(object):
             while True:
                 time.sleep(0.1)
                 if self.room == 2:
-                    response_text = ResponseProtocol.response_play_game_result('2')
+                    response_text = ResponseProtocol.response_play_game_result(
+                        '2')
                     client_soc.send_data(response_text)
                     break
-
 
         else:
             response_text = ResponseProtocol.response_play_game_result('2')
@@ -191,7 +198,8 @@ class Server(object):
         response_score = self.higher_score[0]
         self.room = 0
 
-        response_text = ResponseProtocol.response_send_score(str(response_score))
+        response_text = ResponseProtocol.response_send_score(
+            str(response_score))
         client_soc.send_data(response_text)
 
     def request_update_record(self):
@@ -214,12 +222,16 @@ class Server(object):
 
     def remove_offline_user(self, client_soc):
         """Remove offline users"""
-        print('A client logout.')
-        for username, info in self.clients.items():
-            if info['sock'] == client_soc:
-                del self.clients[username]
-                print(self.clients)
-                break
+        print('[SERVER] Client disconnected', client_soc.socket.getpeername())
+        client_soc.close()
+        print('[SERVER] Client removed')
+        # TODO: Unreachable code - potentially delete this
+        # for username, info in self.clients.items():
+        #     if info['sock'] == client_soc:
+        #         print('[SERVER] Client disconnected:: ', username)
+        #         del self.clients[username]
+        #         print(self.clients)
+        #         break
 
     def parse_request_text(self, text):
         """Deserialize the request from the client"""
@@ -243,12 +255,20 @@ class Server(object):
 
     def exit(self):
         """Server Disconnect"""
+        # Send exit message to all clients
+        for client_soc in self.clients.values():
+            client_soc.send_data(ResponseProtocol.response_exit())
+            client_soc.close()
         self.server_socket.close()
         self.is_running = False
-        print("[SERVER DISCONNECTED]")
+        print("[SERVER STOPPED]")
         sys.exit(0)
 
 
 if __name__ == '__main__':
-    server = Server()
-    server.startup()
+    try:
+        server = Server()
+        server.startup()
+    except KeyboardInterrupt:
+        print("Main function: KeyboardInterrupt")
+        server.exit()
