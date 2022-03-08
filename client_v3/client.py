@@ -177,11 +177,18 @@ class Client(object):
         print("3. Hard")
         print("4. Insane (Please have a wide terminal window)")
         print(self.YELLOW, "Note: Please resize your terminal to the biggest size possible. Thanks :D", self.END)
-        # TODO: invalid input handle
+        
 
         difficulty = input("-> ")
+        # Input validation
+        while not ( difficulty == '1' or difficulty == '2' or difficulty == '3' or difficulty == '4'):
+            print("Invalid input. Please select a valid difficulty")
+            difficulty = input("-> ")
+        
         request_text = RequestProtocol.request_send_difficulty(difficulty)
         self.conn.send_data(request_text)
+            
+            
 
     def response_send_score_handle(self, response_data):
         """Handle send-score response from the server"""
@@ -221,6 +228,7 @@ class Client(object):
         elif user_input == '4':
             self.start_one_player_game()
         else:
+            print("Enter a valid command\n")
             self.prompt_player()
 
     def show_local_ranking(self):
@@ -244,6 +252,9 @@ class Client(object):
         difficulty = input("-> ")
 
         # TODO: handle invalid input
+        while not (difficulty == "1" or difficulty == "2" or difficulty == "3" or difficulty == "4"):
+            print("Invalid input. Please select a valid difficulty")
+            difficulty = input("-> ")
 
         maze = Maze(int(difficulty))
         maze.generate_maze()
