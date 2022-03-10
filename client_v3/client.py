@@ -311,6 +311,7 @@ class Client(object):
         print("Total Time: ", elapsed)
         self.my_time_elapsed = elapsed
         self.local_ranking.append(elapsed)
+        self.local_ranking.sort()
         self.prompt_player()
 
     def show_welcome_info(self):
